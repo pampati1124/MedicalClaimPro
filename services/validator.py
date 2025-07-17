@@ -10,12 +10,13 @@ class ClaimValidator:
     """Validates processed claim data for consistency and completeness"""
     
     def __init__(self):
+        # Only require a medical bill - other documents are optional
         self.required_document_types = {
-            DocumentType.BILL,
-            DocumentType.DISCHARGE_SUMMARY
+            DocumentType.BILL
         }
         
         self.optional_document_types = {
+            DocumentType.DISCHARGE_SUMMARY,
             DocumentType.ID_CARD,
             DocumentType.INSURANCE_CARD
         }

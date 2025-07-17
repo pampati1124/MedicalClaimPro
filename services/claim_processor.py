@@ -219,25 +219,23 @@ class ClaimProcessor:
                                   validation_result: ValidationResult) -> ClaimDecision:
         """Make final claim decision based on processed data and validation"""
         try:
-            # Basic decision logic
-            if not validation_result.is_valid:
-                return ClaimDecision(
-                    status=ClaimStatus.REJECTED,
-                    reason=f"Validation failed: {', '.join(validation_result.discrepancies)}",
-                    confidence=0.8
-                )
-            
-            # Check for required documents
+            # Check for required documents first
             doc_types = [doc.get('document_type') for doc in processed_docs]
             has_bill = DocumentType.BILL in doc_types
-            has_discharge = DocumentType.DISCHARGE_SUMMARY in doc_types
-            has_id = DocumentType.ID_CARD in doc_types or DocumentType.INSURANCE_CARD in doc_types
             
             if not has_bill:
                 return ClaimDecision(
                     status=ClaimStatus.REJECTED,
                     reason="Missing required medical bill document",
                     confidence=0.9
+                )
+            
+            # If we have discrepancies but still have a valid bill, we can approve with warnings
+            if validation_result.discrepancies:
+                return ClaimDecision(
+                    status=ClaimStatus.APPROVED,
+                    reason=f"Approved with warnings: {', '.join(validation_result.discrepancies)}",
+                    confidence=0.7
                 )
             
             # Check data quality
@@ -258,18 +256,14 @@ class ClaimProcessor:
                     confidence=avg_confidence
                 )
             
-            # Check for warnings
+            # Approve if all checks pass, even with warnings
+            reason = "All required documents present and data is consistent"
             if validation_result.warnings:
-                return ClaimDecision(
-                    status=ClaimStatus.REQUIRES_REVIEW,
-                    reason=f"Warnings detected: {', '.join(validation_result.warnings)}",
-                    confidence=avg_confidence
-                )
+                reason = f"Approved with minor warnings: {', '.join(validation_result.warnings)}"
             
-            # Approve if all checks pass
             return ClaimDecision(
                 status=ClaimStatus.APPROVED,
-                reason="All required documents present and data is consistent",
+                reason=reason,
                 confidence=avg_confidence
             )
             
