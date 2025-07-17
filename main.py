@@ -3,7 +3,8 @@ import logging
 import os
 from typing import List
 from fastapi import FastAPI, File, UploadFile, HTTPException
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, FileResponse
+from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
 
@@ -33,11 +34,19 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Mount static files
+app.mount("/static", StaticFiles(directory="static"), name="static")
+
 # Initialize claim processor
 claim_processor = ClaimProcessor()
 
 @app.get("/")
 async def root():
+    """Serve the main web interface"""
+    return FileResponse("static/index.html")
+
+@app.get("/health")
+async def health_check():
     """Health check endpoint"""
     return {"message": "Medical Insurance Claim Processor API", "status": "healthy"}
 

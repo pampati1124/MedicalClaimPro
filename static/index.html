@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Medical Insurance Claim Processor</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #2196F3 0%, #21CBF3 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            font-weight: 300;
+        }
+
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .upload-section {
+            padding: 40px;
+            text-align: center;
+        }
+
+        .upload-area {
+            border: 3px dashed #ddd;
+            border-radius: 15px;
+            padding: 60px 40px;
+            margin: 20px 0;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .upload-area:hover {
+            border-color: #2196F3;
+            background: #f8f9ff;
+        }
+
+        .upload-area.dragover {
+            border-color: #21CBF3;
+            background: #e3f2fd;
+        }
+
+        .upload-icon {
+            font-size: 4em;
+            color: #ddd;
+            margin-bottom: 20px;
+        }
+
+        .upload-text {
+            font-size: 1.3em;
+            color: #666;
+            margin-bottom: 15px;
+        }
+
+        .upload-hint {
+            color: #999;
+            font-size: 0.9em;
+        }
+
+        #fileInput {
+            display: none;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #2196F3 0%, #21CBF3 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1.1em;
+            transition: all 0.3s ease;
+            margin: 10px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(33, 150, 243, 0.4);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .file-list {
+            margin: 20px 0;
+            text-align: left;
+        }
+
+        .file-item {
+            background: #f5f5f5;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .file-name {
+            font-weight: 500;
+            color: #333;
+        }
+
+        .file-size {
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        .remove-btn {
+            background: #ff4444;
+            color: white;
+            border: none;
+            padding: 5px 15px;
+            border-radius: 15px;
+            cursor: pointer;
+            font-size: 0.9em;
+        }
+
+        .processing {
+            text-align: center;
+            padding: 40px;
+            display: none;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #2196F3;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .results {
+            padding: 40px;
+            display: none;
+        }
+
+        .result-card {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+            border-left: 5px solid #2196F3;
+        }
+
+        .result-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .doc-type {
+            background: #2196F3;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            font-weight: 500;
+        }
+
+        .confidence {
+            background: #4CAF50;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9em;
+        }
+
+        .extracted-data {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 15px 0;
+        }
+
+        .data-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .data-row:last-child {
+            border-bottom: none;
+        }
+
+        .data-label {
+            font-weight: 500;
+            color: #555;
+        }
+
+        .data-value {
+            color: #333;
+            text-align: right;
+        }
+
+        .decision-card {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 30px;
+            margin: 30px 0;
+            text-align: center;
+        }
+
+        .decision-approved {
+            border-left: 5px solid #4CAF50;
+        }
+
+        .decision-rejected {
+            border-left: 5px solid #f44336;
+        }
+
+        .decision-status {
+            font-size: 2em;
+            font-weight: 500;
+            margin-bottom: 15px;
+        }
+
+        .status-approved {
+            color: #4CAF50;
+        }
+
+        .status-rejected {
+            color: #f44336;
+        }
+
+        .decision-reason {
+            color: #666;
+            font-size: 1.1em;
+            margin-bottom: 15px;
+        }
+
+        .processing-time {
+            color: #999;
+            font-size: 0.9em;
+        }
+
+        .error-message {
+            background: #ffebee;
+            border: 1px solid #ffcdd2;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            color: #c62828;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏥 Medical Insurance Claim Processor</h1>
+            <p>Upload your medical documents for AI-powered processing</p>
+        </div>
+
+        <div class="upload-section" id="uploadSection">
+            <div class="upload-area" id="uploadArea">
+                <div class="upload-icon">📄</div>
+                <div class="upload-text">Drop your PDF files here or click to browse</div>
+                <div class="upload-hint">Supported: Medical bills, discharge summaries, ID cards (PDF format)</div>
+            </div>
+            <input type="file" id="fileInput" multiple accept=".pdf">
+            
+            <div class="file-list" id="fileList"></div>
+            
+            <button class="btn" id="processBtn" disabled>Process Claims</button>
+            <button class="btn" id="clearBtn" style="background: #666;">Clear All</button>
+        </div>
+
+        <div class="processing" id="processing">
+            <div class="spinner"></div>
+            <h2>Processing your documents...</h2>
+            <p>This may take a few moments while our AI analyzes your files.</p>
+        </div>
+
+        <div class="results" id="results">
+            <h2>Processing Results</h2>
+            <div id="documentsResults"></div>
+            <div id="decisionResult"></div>
+        </div>
+    </div>
+
+    <script>
+        const fileInput = document.getElementById('fileInput');
+        const uploadArea = document.getElementById('uploadArea');
+        const fileList = document.getElementById('fileList');
+        const processBtn = document.getElementById('processBtn');
+        const clearBtn = document.getElementById('clearBtn');
+        const uploadSection = document.getElementById('uploadSection');
+        const processing = document.getElementById('processing');
+        const results = document.getElementById('results');
+        const documentsResults = document.getElementById('documentsResults');
+        const decisionResult = document.getElementById('decisionResult');
+
+        let selectedFiles = [];
+
+        // Upload area events
+        uploadArea.addEventListener('click', () => fileInput.click());
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        });
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('dragover');
+        });
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            handleFiles(e.dataTransfer.files);
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            handleFiles(e.target.files);
+        });
+
+        function handleFiles(files) {
+            for (let file of files) {
+                if (file.type === 'application/pdf') {
+                    selectedFiles.push(file);
+                }
+            }
+            updateFileList();
+        }
+
+        function updateFileList() {
+            fileList.innerHTML = '';
+            selectedFiles.forEach((file, index) => {
+                const fileItem = document.createElement('div');
+                fileItem.className = 'file-item';
+                fileItem.innerHTML = `
+                    <div>
+                        <div class="file-name">${file.name}</div>
+                        <div class="file-size">${(file.size / 1024 / 1024).toFixed(2)} MB</div>
+                    </div>
+                    <button class="remove-btn" onclick="removeFile(${index})">Remove</button>
+                `;
+                fileList.appendChild(fileItem);
+            });
+            
+            processBtn.disabled = selectedFiles.length === 0;
+        }
+
+        function removeFile(index) {
+            selectedFiles.splice(index, 1);
+            updateFileList();
+        }
+
+        clearBtn.addEventListener('click', () => {
+            selectedFiles = [];
+            updateFileList();
+        });
+
+        processBtn.addEventListener('click', async () => {
+            if (selectedFiles.length === 0) return;
+
+            // Show processing screen
+            uploadSection.style.display = 'none';
+            processing.style.display = 'block';
+            results.style.display = 'none';
+
+            try {
+                const formData = new FormData();
+                selectedFiles.forEach(file => {
+                    formData.append('files', file);
+                });
+
+                const response = await fetch('/process-claim', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const result = await response.json();
+                displayResults(result);
+            } catch (error) {
+                displayError(error.message);
+            }
+
+            // Hide processing screen
+            processing.style.display = 'none';
+            results.style.display = 'block';
+        });
+
+        function displayResults(data) {
+            // Clear previous results
+            documentsResults.innerHTML = '';
+            decisionResult.innerHTML = '';
+
+            // Display documents
+            data.documents.forEach(doc => {
+                const docCard = document.createElement('div');
+                docCard.className = 'result-card';
+                
+                const extractedDataHtml = Object.entries(doc.extracted_data)
+                    .filter(([key, value]) => value !== null && value !== undefined && value !== '')
+                    .map(([key, value]) => {
+                        const displayValue = Array.isArray(value) ? value.join(', ') : value.toString();
+                        return `
+                            <div class="data-row">
+                                <div class="data-label">${key.replace(/_/g, ' ').toUpperCase()}</div>
+                                <div class="data-value">${displayValue}</div>
+                            </div>
+                        `;
+                    }).join('');
+
+                docCard.innerHTML = `
+                    <div class="result-header">
+                        <h3>${doc.filename}</h3>
+                        <div>
+                            <span class="doc-type">${doc.type.replace('_', ' ').toUpperCase()}</span>
+                            <span class="confidence">${Math.round(doc.confidence * 100)}% confidence</span>
+                        </div>
+                    </div>
+                    <div class="extracted-data">
+                        ${extractedDataHtml}
+                    </div>
+                `;
+                documentsResults.appendChild(docCard);
+            });
+
+            // Display decision
+            const decisionCard = document.createElement('div');
+            decisionCard.className = `decision-card decision-${data.claim_decision.status}`;
+            decisionCard.innerHTML = `
+                <div class="decision-status status-${data.claim_decision.status}">
+                    ${data.claim_decision.status.toUpperCase()}
+                </div>
+                <div class="decision-reason">${data.claim_decision.reason}</div>
+                <div class="processing-time">
+                    Processing completed in ${data.processing_time.toFixed(2)} seconds
+                </div>
+            `;
+            decisionResult.appendChild(decisionCard);
+        }
+
+        function displayError(message) {
+            documentsResults.innerHTML = `
+                <div class="error-message">
+                    <h3>Error Processing Documents</h3>
+                    <p>${message}</p>
+                </div>
+            `;
+            decisionResult.innerHTML = '';
+        }
+
+        // Add back to upload button
+        results.addEventListener('click', (e) => {
+            if (e.target.textContent === 'Process New Documents') {
+                uploadSection.style.display = 'block';
+                results.style.display = 'none';
+                selectedFiles = [];
+                updateFileList();
+            }
+        });
+
+        // Add process new documents button to results
+        const processNewBtn = document.createElement('button');
+        processNewBtn.className = 'btn';
+        processNewBtn.textContent = 'Process New Documents';
+        processNewBtn.style.marginTop = '20px';
+        processNewBtn.addEventListener('click', () => {
+            uploadSection.style.display = 'block';
+            results.style.display = 'none';
+            selectedFiles = [];
+            updateFileList();
+        });
+        results.appendChild(processNewBtn);
+    </script>
+</body>
+</html>

@@ -71,13 +71,33 @@ The system follows a multi-agent architecture:
    uvicorn main:app --host 0.0.0.0 --port 5000 --reload
    ```
 
+5. **Access the web interface**
+   Open your browser and go to `http://localhost:5000`
+
+## 🌐 Web Interface
+
+The application now includes a beautiful, user-friendly web interface accessible at `http://localhost:5000`:
+
+### Features:
+- **Drag & Drop**: Simply drag PDF files into the upload area
+- **File Management**: Add/remove files before processing
+- **Real-time Processing**: Visual feedback during document processing
+- **Beautiful Results**: Clean, organized display of extracted data
+- **Responsive Design**: Works on desktop and mobile devices
+
+### Usage:
+1. Open `http://localhost:5000` in your browser
+2. Upload medical PDF files (bills, discharge summaries, ID cards)
+3. Click "Process Claims" to analyze documents
+4. View structured results and claim decisions
+
 ## 📡 API Usage
 
 ### Process Claim Endpoint
 
 **POST `/process-claim`**
 
-Upload multiple PDF files for claim processing:
+For programmatic access, upload multiple PDF files:
 
 ```bash
 curl -X POST "http://localhost:5000/process-claim" \
@@ -85,6 +105,16 @@ curl -X POST "http://localhost:5000/process-claim" \
   -F "files=@medical_bill.pdf" \
   -F "files=@discharge_summary.pdf" \
   -F "files=@id_card.pdf"
+```
+
+### Health Check Endpoint
+
+**GET `/health`**
+
+Check API status:
+
+```bash
+curl http://localhost:5000/health
 ```
 
 ### Example Response
