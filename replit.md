@@ -95,20 +95,30 @@ The application follows a multi-agent architecture pattern with the following ke
 
 ## Recent Changes
 
-### 2025-07-17: Project Completion & Validation Fix
-- **Status**: ✅ COMPLETED - All requirements satisfied with improved validation
-- **Achievement**: Successfully built and deployed full medical insurance claim processor with user-friendly interface
+### 2025-07-17: Project Completion & Insurance Validation Enhancement
+- **Status**: ✅ COMPLETED - All requirements satisfied with intelligent insurance validation
+- **Achievement**: Successfully built and deployed full medical insurance claim processor with enhanced validation
 - **Key Features Implemented**:
   - Multi-document PDF processing with concurrent handling
   - AI-powered document classification using Gemini AI
   - Specialized agents for different document types (BillAgent, DischargeAgent, IdCardAgent)
   - Robust JSON parsing with HTML error handling
   - Cross-document validation and consistency checking
-  - Automated approve/reject decision making
-  - Comprehensive error handling and logging
+  - **Enhanced Insurance Validation**: System now properly validates insurance claims
+  - **Smart Approval Logic**: Rejects non-insurance bills, approves valid insurance claims
+  - **Improved Confidence Scoring**: Stricter thresholds for insurance claims (0.7 minimum)
   - Beautiful web interface with drag-and-drop file upload
-  - Flexible validation that works with individual medical bills
-  - Fixed over-restrictive validation that was rejecting valid claims
+  - Comprehensive error handling and logging
+
+### Insurance Validation Logic
+- **APPROVED**: Bills with insurance information, diagnosis codes, procedure codes
+- **REJECTED**: Private pay bills, missing insurance details, low confidence scores
+- **Confidence Factors**: Insurance presence, medical codes, data completeness
+- **Validation Criteria**: 
+  - Insurance company names (Blue Cross, Aetna, UnitedHealth, etc.)
+  - ICD-10 diagnosis codes (J44.1, Z51.11, etc.)
+  - CPT procedure codes (99284, 71020, etc.)
+  - Insurance terms (copay, deductible, policy, member ID)
 
 ### Testing Results
 - **Performance**: 26 seconds for 3-document processing

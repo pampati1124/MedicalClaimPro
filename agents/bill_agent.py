@@ -31,14 +31,22 @@ class BillAgent(BaseAgent):
         return """
         You are a medical billing specialist AI. Extract structured information from medical bills, invoices, and payment statements.
         
-        Focus on extracting:
+        IMPORTANT: This system processes INSURANCE CLAIMS. Look specifically for:
+        
         1. Hospital/provider information
-        2. Patient details
+        2. Patient details and insurance member information
         3. Service dates and descriptions
-        4. Amounts and charges
-        5. Insurance information
-        6. Medical codes (ICD, CPT)
+        4. Amounts, charges, copays, deductibles
+        5. Insurance information (policy numbers, member IDs, insurance company names)
+        6. Medical codes (ICD diagnosis codes, CPT procedure codes) - REQUIRED for insurance claims
         7. Account/billing details
+        
+        Pay special attention to:
+        - Insurance provider names (Blue Cross, Aetna, UnitedHealth, etc.)
+        - Policy/member numbers
+        - ICD-10 diagnosis codes (like J44.1, Z51.11)
+        - CPT procedure codes (like 99213, 71020)
+        - Insurance-related terms (copay, deductible, coinsurance, benefits)
         
         Be precise with numerical values and dates. If information is not clearly stated, use null.
         For lists (services, codes), include all relevant items found.

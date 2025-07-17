@@ -60,6 +60,10 @@ class ClaimValidator:
             amount_warnings = self._check_amount_validation(processed_docs)
             warnings.extend(amount_warnings)
             
+            # Check for insurance claims validation
+            insurance_issues = self._check_insurance_claims(processed_docs)
+            discrepancies.extend(insurance_issues)
+            
             is_valid = len(discrepancies) == 0 and len(missing_documents) == 0
             
             logger.info(f"Validation complete. Valid: {is_valid}, "
@@ -263,3 +267,91 @@ class ClaimValidator:
         name = ' '.join(name.split())
         
         return name
+    
+    def _check_insurance_claims(self, processed_docs: List[Dict[str, Any]]) -> List[str]:
+        """Check if medical bills contain insurance claims"""
+        discrepancies = []
+        
+        for doc in processed_docs:
+            if not doc.get('agent_response') or not doc['agent_response'].extracted_data:
+                continue
+            
+            data = doc['agent_response'].extracted_data
+            doc_type = doc['document_type']
+            
+            if doc_type == DocumentType.BILL:
+                filename = doc.get('filename', 'unknown')
+                
+                # Check for insurance-related information
+                has_insurance_info = self._has_insurance_indicators(data)
+                
+                if not has_insurance_info:
+                    discrepancies.append(
+                        f"No insurance claim information found in bill: {filename}"
+                    )
+                
+                # Check for required insurance fields
+                missing_insurance_fields = self._check_missing_insurance_fields(data)
+                if missing_insurance_fields:
+                    discrepancies.append(
+                        f"Missing insurance information in {filename}: {', '.join(missing_insurance_fields)}"
+                    )
+        
+        return discrepancies
+    
+    def _has_insurance_indicators(self, data: Dict[str, Any]) -> bool:
+        """Check if the bill contains insurance-related indicators"""
+        
+        # Check for explicit insurance details
+        if data.get('insurance_details'):
+            return True
+        
+        # Check for insurance-related keywords in services
+        insurance_keywords = [
+            'insurance', 'claim', 'coverage', 'copay', 'deductible', 
+            'coinsurance', 'benefits', 'policy', 'member', 'subscriber',
+            'plan', 'carrier', 'payer', 'authorization', 'pre-auth'
+        ]
+        
+        services = data.get('services', [])
+        if services:
+            services_text = ' '.join(services).lower()
+            for keyword in insurance_keywords:
+                if keyword in services_text:
+                    return True
+        
+        # Check hospital/provider name for insurance indicators
+        hospital_name = data.get('hospital_name', '')
+        if hospital_name:
+            hospital_text = hospital_name.lower()
+            for keyword in insurance_keywords:
+                if keyword in hospital_text:
+                    return True
+        
+        # Check if there are diagnosis codes (typically required for insurance)
+        if data.get('diagnosis_codes') and len(data['diagnosis_codes']) > 0:
+            return True
+        
+        # Check if there are procedure codes (typically required for insurance)
+        if data.get('procedure_codes') and len(data['procedure_codes']) > 0:
+            return True
+        
+        return False
+    
+    def _check_missing_insurance_fields(self, data: Dict[str, Any]) -> List[str]:
+        """Check for missing insurance-related fields in medical bills"""
+        missing_fields = []
+        
+        # Check for diagnosis codes (usually required for insurance claims)
+        if not data.get('diagnosis_codes') or len(data['diagnosis_codes']) == 0:
+            missing_fields.append('diagnosis_codes')
+        
+        # Check for procedure codes (usually required for insurance claims)
+        if not data.get('procedure_codes') or len(data['procedure_codes']) == 0:
+            missing_fields.append('procedure_codes')
+        
+        # Check for patient ID (usually required for insurance claims)
+        if not data.get('patient_id'):
+            missing_fields.append('patient_id')
+        
+        return missing_fields

@@ -230,15 +230,28 @@ class ClaimProcessor:
                     confidence=0.9
                 )
             
-            # If we have discrepancies but still have a valid bill, we can approve with warnings
+            # If we have discrepancies, check if they're insurance-related (should reject)
             if validation_result.discrepancies:
-                return ClaimDecision(
-                    status=ClaimStatus.APPROVED,
-                    reason=f"Approved with warnings: {', '.join(validation_result.discrepancies)}",
-                    confidence=0.7
+                # Check if discrepancies are related to insurance claims
+                insurance_related = any(
+                    'insurance' in disc.lower() for disc in validation_result.discrepancies
                 )
+                
+                if insurance_related:
+                    return ClaimDecision(
+                        status=ClaimStatus.REJECTED,
+                        reason=f"Insurance claim validation failed: {', '.join(validation_result.discrepancies)}",
+                        confidence=0.3
+                    )
+                else:
+                    # Non-insurance discrepancies can be approved with warnings
+                    return ClaimDecision(
+                        status=ClaimStatus.APPROVED,
+                        reason=f"Approved with warnings: {', '.join(validation_result.discrepancies)}",
+                        confidence=0.7
+                    )
             
-            # Check data quality
+            # Check data quality and confidence
             total_confidence = 0
             valid_docs = 0
             
@@ -249,7 +262,8 @@ class ClaimProcessor:
             
             avg_confidence = total_confidence / valid_docs if valid_docs > 0 else 0
             
-            if avg_confidence < 0.5:
+            # Stricter confidence threshold for insurance claims
+            if avg_confidence < 0.7:
                 return ClaimDecision(
                     status=ClaimStatus.REQUIRES_REVIEW,
                     reason="Low confidence in extracted data. Manual review required.",
