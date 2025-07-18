@@ -165,27 +165,30 @@ curl http://localhost:5000/health
 
 This project was built using several AI development tools:
 
-### 1. **Cursor AI** (Primary Development)
+### 1. Cursor AI (Primary Development)
 - **Usage**: Code scaffolding, architecture design, and implementation
 - **Prompts Used**:
-  - *"Create a FastAPI endpoint that accepts multiple PDF files and processes them with specialized agents"*
-  - *"Implement a multi-agent system for document classification using Gemini AI"*
-  - *"Design Pydantic schemas for medical document data extraction with proper validation"*
+  - "Create a FastAPI endpoint that accepts multiple PDF files and processes them with specialized agents"
+  - "Implement a multi-agent system for document classification using Gemini AI"
+  - "Design Pydantic schemas for medical document data extraction with proper validation"
 
-### 2. **Google Gemini AI** (LLM Processing)
+### 2. Google Gemini AI (LLM Processing)
 - **Usage**: Document classification, text extraction, and data structuring
-- **Models**: `gemini-2.5-flash` (classification), `gemini-2.5-pro` (data extraction)
+- **Models**: gemini-2.5-flash (classification), gemini-2.5-pro (data extraction)
 - **Prompts Used**:
-  - *"Classify this medical document into categories: bill, discharge_summary, id_card, prescription, insurance_card"*
-  - *"Extract structured data from this medical bill including hospital name, patient details, amounts, and services"*
-  - *"Process this discharge summary and extract patient information, diagnosis, treatment details, and medications"*
+  - "Classify this medical document into categories: bill, discharge_summary, id_card, prescription, insurance_card"
+  - "Extract structured data from this medical bill including hospital name, patient details, amounts, and services"
+  - "Process this discharge summary and extract patient information, diagnosis, treatment details, and medications"
 
-### 3. **Claude AI** (Architecture & Documentation)
+### 3. Claude AI (Architecture & Documentation)
 - **Usage**: Code review, architecture improvements, and documentation
 - **Prompts Used**:
-  - *"Review this multi-agent architecture for medical document processing and suggest improvements"*
-  - *"Create comprehensive documentation for this insurance claim processor API"*
-  - *"Design error handling strategies for malformed JSON responses from LLMs"*
+  - "Review this multi-agent architecture for medical document processing and suggest improvements"
+  - "Create comprehensive documentation for this insurance claim processor API"
+  - "Design error handling strategies for malformed JSON responses from LLMs"
+
+### 4. Replit AI
+- **Usage**: Building virtual interface for testing, more modifications, and final deployment
 
 ## 🔍 Key Implementation Details
 
