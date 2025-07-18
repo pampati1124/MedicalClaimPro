@@ -53,7 +53,7 @@ The system follows a multi-agent architecture:
 1. **Clone the repository**
    ```bash
    git clone <repository-url>
-   cd medical-insurance-processor
+   cd MedicalClaimPro
    ```
 
 2. **Set up environment**
